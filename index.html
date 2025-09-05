@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Phishing URL Detector</title>
+  <style>
+    /* 🌈 Background Animation */
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #ff7eb3, #ff758c, #ffb199, #f9f871, #a1ffce, #fbc2eb);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #333;
+    }
+    @keyframes gradientBG {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+
+    /* 🌟 Card */
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 25px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+      width: 90%;
+      max-width: 550px;
+      text-align: center;
+      backdrop-filter: blur(8px);
+      animation: fadeIn 1.2s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from {opacity: 0; transform: scale(0.9);}
+      to {opacity: 1; transform: scale(1);}
+    }
+
+    /* 🎨 Title */
+    h1 {
+      margin-bottom: 20px;
+      color: #222;
+      font-size: 28px;
+      background: linear-gradient(90deg, #ff4e50, #f9d423);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* 🔍 Input */
+    input {
+      width: 70%;
+      padding: 12px;
+      font-size: 16px;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      outline: none;
+      transition: 0.3s;
+      margin-bottom: 10px;
+    }
+    input:focus {
+      border-color: #ff7eb3;
+      box-shadow: 0 0 10px rgba(255, 126, 179, 0.5);
+    }
+
+    /* 🚀 Buttons */
+    button {
+      padding: 12px 18px;
+      font-size: 16px;
+      margin-left: 5px;
+      background: linear-gradient(90deg, #36d1dc, #5b86e5);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      transform: scale(1.05);
+      background: linear-gradient(90deg, #5b86e5, #36d1dc);
+    }
+
+    /* ✅/❌ Result Box */
+    #result {
+      margin-top: 20px;
+      font-size: 20px;
+      font-weight: bold;
+      padding: 12px;
+      border-radius: 12px;
+      transition: transform 0.3s ease;
+    }
+    .safe {
+      background: #e0ffe0;
+      color: #008000;
+      border: 1px solid #008000;
+      box-shadow: 0 0 15px rgba(0, 128, 0, 0.2);
+    }
+    .phishing {
+      background: #ffe0e0;
+      color: #cc0000;
+      border: 1px solid #cc0000;
+      box-shadow: 0 0 15px rgba(204, 0, 0, 0.2);
+    }
+
+    /* 📊 Dashboard */
+    .dashboard {
+      margin-top: 30px;
+      background: linear-gradient(135deg, #fbc2eb, #a6c1ee);
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
+    }
+    .dashboard h2 {
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+    .stats {
+      font-size: 18px;
+      margin: 8px 0;
+    }
+
+    /* 🔥 Custom Progress Bar */
+    .progress-container {
+      background: #eee;
+      border-radius: 20px;
+      overflow: hidden;
+      height: 25px;
+      margin-top: 10px;
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ff4e50, #f9d423);
+      text-align: center;
+      line-height: 25px;
+      color: white;
+      font-weight: bold;
+      transition: width 0.5s ease;
+    }
+
+    /* 🔗 Test URL Section */
+    .test-urls {
+      margin-top: 20px;
+      text-align: left;
+    }
+    .test-urls h3 {
+      margin-bottom: 8px;
+      font-size: 20px;
+    }
+    .test-urls ul {
+      list-style: none;
+      padding: 0;
+    }
+    .test-urls li {
+      margin: 6px 0;
+    }
+    .test-url-btn {
+      background: #ff7eb3;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.3s;
+    }
+    .test-url-btn:hover {
+      background: #ff4e50;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔍 Phishing URL Detector</h1>
+    <input type="text" id="urlInput" placeholder="Enter URL">
+    <button onclick="checkURL()">Check</button>
+    <div id="result"></div>
+
+    <div class="dashboard">
+      <h2>📊 Dashboard</h2>
+      <div class="stats">Total URLs Checked: <span id="total">0</span></div>
+      <div class="stats">Phishing URLs: <span id="phishingCount">0</span></div>
+      <div class="stats">Safe URLs: <span id="safeCount">0</span></div>
+      <div class="stats">Phishing %</div>
+      <div class="progress-container">
+        <div class="progress-bar" id="progressBar">0%</div>
+      </div>
+    </div>
+
+    <div class="test-urls">
+      <h3>🧪 Test with Sample URLs</h3>
+      <ul>
+        <li><button class="test-url-btn" onclick="fillURL('http://192.168.1.10/login')">Phishing: IP Login</button></li>
+        <li><button class="test-url-btn" onclick="fillURL('http://paypal.com.account-update.confirm-login.ru')">Phishing: PayPal Scam</button></li>
+        <li><button class="test-url-btn" onclick="fillURL('http://free-gift.top/winner')">Phishing: Free Gift</button></li>
+        <li><button class="test-url-btn" onclick="fillURL('https://www.google.com')">Safe: Google</button></li>
+        <li><button class="test-url-btn" onclick="fillURL('https://github.com/')">Safe: GitHub</button></li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+  let total = 0;
+  let phishingCount = 0;
+  let safeCount = 0;
+
+  function fillURL(url) {
+    document.getElementById("urlInput").value = url;
+    checkURL();
+  }
+
+  function checkURL() {
+    const url = document.getElementById("urlInput").value.trim();
+    const resultDiv = document.getElementById("result");
+
+    if (!url) {
+      resultDiv.textContent = "⚠️ Please enter a URL!";
+      resultDiv.className = "";
+      return;
+    }
+
+    const suspiciousWords = ["login", "secure", "account", "bank", "confirm", "update", "free", "click", "verify"];
+    const suspiciousTLDs = ["zip", "review", "top", "country", "kim"];
+    let score = 0;
+    let reasons = [];
+
+    // Check URL length
+    if (url.length > 60) {
+      score++;
+      reasons.push(`🟥 <span style="color:red;">URL is very long</span>`);
+    }
+
+    // Check suspicious keywords
+    suspiciousWords.forEach(word => {
+      if (url.toLowerCase().includes(word)) {
+        score++;
+        reasons.push(`🟥 <span style="color:red;">Contains suspicious keyword: "${word}"</span>`);
+      }
+    });
+
+    // Check for IP addresses
+    if (/\b\d{1,3}(\.\d{1,3}){3}\b/.test(url)) {
+      score++;
+      reasons.push(`🟥 <span style="color:red;">Uses an IP address instead of domain</span>`);
+    }
+
+    // Check for multiple dots
+    const dotCount = (url.match(/\./g) || []).length;
+    if (dotCount > 3) {
+      score++;
+      reasons.push(`🟥 <span style="color:red;">Too many dots in the URL</span>`);
+    }
+
+    // Check for suspicious TLDs
+    suspiciousTLDs.forEach(tld => {
+      if (url.toLowerCase().endsWith(`.${tld}`)) {
+        score++;
+        reasons.push(`🟥 <span style="color:red;">Suspicious top-level domain (.${tld})</span>`);
+      }
+    });
+
+    // Display result
+    if (score >= 2) {
+      resultDiv.innerHTML = `<div>❌ <b>Phishing URL Detected!</b></div><div>🔍 Reasons:<br>- ${reasons.join("<br>- ")}</div>`;
+      resultDiv.className = "phishing";
+      phishingCount++;
+    } else {
+      resultDiv.innerHTML = `<div>✅ <b>Safe URL</b></div><div>🔍 Reasons:<br>- 🟩 <span style="color:green;">No suspicious patterns or keywords detected</span></div>`;
+      resultDiv.className = "safe";
+      safeCount++;
+    }
+
+    total++;
+    updateDashboard();
+  }
+
+  function updateDashboard() {
+    const phishingPercent = total > 0 ? (phishingCount / total) * 100 : 0;
+    document.getElementById("total").textContent = total;
+    document.getElementById("phishingCount").textContent = phishingCount;
+    document.getElementById("safeCount").textContent = safeCount;
+
+    const progressBar = document.getElementById("progressBar");
+    progressBar.style.width = phishingPercent.toFixed(1) + "%";
+    progressBar.textContent = phishingPercent.toFixed(1) + "%";
+  }
+</script>
